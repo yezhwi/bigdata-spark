@@ -11,17 +11,17 @@ object WordCount {
   def main (args: Array[String]){
 
 
-    System.setProperty("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-
-    val conf = new SparkConf().setAppName("WC")
+    val conf = new SparkConf().setAppName("WordCount")
+    // 设置序列化器为KryoSerializer。
+    conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     val sc = new SparkContext(conf)
 
-    val input = sc.textFile("README.md")
-    val pythonLines = input.filter(line => line.contains("Python"))
-    val words = pythonLines.flatMap(line => line.split(" "))
-    val counts = words.map(word => (word, 1)).reduceByKey(_ + _)
+    val inputRDD = sc.textFile("README.md")
+    val pythonLinesRDD = inputRDD.filter(line => line.contains("Python"))
+    val wordsRDD = pythonLinesRDD.flatMap(line => line.split(" "))
+    val countsRDD = wordsRDD.map(word => (word, 1)).reduceByKey(_ + _)
 
-    counts.saveAsTextFile("outputFile")
+    countsRDD.saveAsTextFile("outputFile")
     sc.stop()
   }
 }
